@@ -5,7 +5,6 @@ include_once "Classes/Classes.php";
 
 $bankingSolution = new bankingSolution();
 
-
 while(1){
 
     print_r("Welcome to my Banking Solution, Programmed by Samane Monfared: \n");
@@ -14,12 +13,12 @@ while(1){
         break;
     }
 
-    $validation=$bankingSolution->commandValidationAndRun($Command);
+    $validationAndRun=$bankingSolution->commandValidationAndRun($Command);
 
-    if(!$validation){
+    if(!$validationAndRun){
         print_r("This Command is not Valid! Try again! \n");
-        continue;
     }
+
 }
 
 
