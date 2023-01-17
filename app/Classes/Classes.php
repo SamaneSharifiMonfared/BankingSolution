@@ -44,7 +44,6 @@ class bankingSolution{
 //        Create “Diana Prince”
 
         $original_commnad=$this->command;
-
         $createCommand=explode('"',$original_commnad);
 // validation of create account command
         if(count($createCommand)!=3){
@@ -64,11 +63,6 @@ class bankingSolution{
             print_r("Account Could not get created!\n");
         }
 
-    }
-    private function createAccountAtDataset($accountName){
-        $sqlConn=new sqlConnection();
-        $query_accounts="INSERT INTO `bankdataset`.`accounts` (`fullname`) VALUES ('$accountName');";
-        return $sqlConn->insert($query_accounts);
     }
 //    Deposit
     private function deposit(){
@@ -101,6 +95,21 @@ class bankingSolution{
 
     }
     private function balance(){
+//        Balance 1001
+        $original_commnad=$this->commands;
+//        validation
+        if(count($original_commnad)!=2){
+            $this->resultOfValidation=False;
+            return;
+        }elseif(strlen($original_commnad[1])!=4){
+            $this->resultOfValidation=False;
+            return;
+        }
+
+        $account_number=$original_commnad[1];
+
+        $this->getTheBalanceofAccount($account_number);
+
 
     }
     private function withdraw(){
@@ -110,6 +119,11 @@ class bankingSolution{
 
     }
 
+    private function createAccountAtDataset($accountName){
+        $sqlConn=new sqlConnection();
+        $query_accounts="INSERT INTO `bankdataset`.`accounts` (`fullname`) VALUES ('$accountName');";
+        return $sqlConn->insert($query_accounts);
+    }
     private function getLastAccountNumber(){
         $sqlConn=new sqlConnection();
         $query_accounts="SELECT account_number FROM bankdataset.accounts order by id desc limit 1;";
@@ -169,6 +183,9 @@ class bankingSolution{
         }else{
             return $new_balance;
         }
+
+    }
+    private function getTheBalanceofAccount($account_number){
 
     }
 
