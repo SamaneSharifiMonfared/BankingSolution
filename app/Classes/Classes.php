@@ -10,7 +10,7 @@ class bankingSolution{
     private $resultOfValidation=True;
 
 //    private function __construct() {} //I didnt used constraction for the decleration
-// because i didnt want to meke a new class each time a new command will be recieved.
+// because i didn't want to meke a new class each time a new command will be recieved.
 
     public function commandValidationAndRun($Command){
 
