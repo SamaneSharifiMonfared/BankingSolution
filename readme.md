@@ -33,3 +33,8 @@ the withdrawal amount. Returns the balance post withdrawal.
 account number and the last one is the amount to transfer. Returns status as successful or
 failure.
 ○ All the deposit and withdrawal rules are applicable for transfer operation as well.
+
+
+# Testing
+
+# php tests.php
