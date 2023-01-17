@@ -118,7 +118,7 @@ class bankingSolution{
 
         $accountFind=$this->searchForAccountAtDataset($accountNumber);
         if($accountFind){
-            $this->insertDepositToDataset($accountNumber,$deposit);
+            $this->insertDepositToDatasetAndCheckforOverloadingofAccount($accountNumber,$deposit);
         }
 
     }
@@ -128,15 +128,16 @@ class bankingSolution{
         $query_accounts_number="SELECT account_number FROM bankdataset.accounts where account_number=$accountNumber";
         $result=$sqlConn->fetch($query_accounts_number);
 
-        if($result){
+        if(!empty($result)){
             return 1;
         }else{
+            print_r("This account could not be found!\n");
             return 0;
-            print_r("Account could not be find!\n");
         }
     }
 
-    private function insertDepositToDataset($accountNumber,$deposit){
+    private function insertDepositToDatasetAndCheckforOverloadingofAccount($accountNumber,$deposit){
+
 
     }
 
