@@ -93,7 +93,10 @@ class bankingSolution{
         $accountNumber=$depositCommand[1];
         $deposit=$depositCommand[2];
 
-        $this->depositToDatasetAfterCheckingTheAccountNumberValidation($accountNumber,$deposit);
+        $depositResult=$this->depositToDatasetAfterCheckingTheAccountNumberValidation($accountNumber,$deposit);
+        if($depositResult==0){
+         return;
+        }
 
 
     }
@@ -116,28 +119,56 @@ class bankingSolution{
 
     private function depositToDatasetAfterCheckingTheAccountNumberValidation($accountNumber,$deposit){
 
-        $accountFind=$this->searchForAccountAtDataset($accountNumber);
-        if($accountFind){
-            $this->insertDepositToDatasetAndCheckforOverloadingofAccount($accountNumber,$deposit);
+        $accountFound=$this->searchForAccountAtDataset($accountNumber);
+        if($accountFound==0){
+            return 0;
+        }else{
+            $this->insertDepositToDatasetAndCheckforOverloadingofAccount($accountFound,$deposit);
+
         }
 
     }
 
     private function searchForAccountAtDataset($accountNumber){
         $sqlConn=new sqlConnection();
-        $query_accounts_number="SELECT account_number FROM bankdataset.accounts where account_number=$accountNumber";
+        $query_accounts_number="SELECT id,account_number,balance FROM bankdataset.accounts where account_number=$accountNumber";
         $result=$sqlConn->fetch($query_accounts_number);
 
         if(!empty($result)){
-            return 1;
+            return $result;
         }else{
             print_r("This account could not be found!\n");
             return 0;
         }
     }
 
-    private function insertDepositToDatasetAndCheckforOverloadingofAccount($accountNumber,$deposit){
+    private function insertDepositToDatasetAndCheckforOverloadingofAccount($accountFound,$deposit){
 
+        $new_balance=(int)$accountFound[0]["balance"]+(int)$deposit;
+        if($new_balance>100000){
+            print_r("Account balance cannot exceed $100,000!\n");
+            return 0;
+        }
+
+        $account_id=$accountFound[0]["id"];
+
+        $resultUpdate=$this->updateNewBalanceAtDatabase($new_balance,$account_id);
+        print_r($resultUpdate);
+        print_r("\n");
+
+    }
+    private function updateNewBalanceAtDatabase($new_balance,$account_id){
+
+        $sqlConn=new sqlConnection();
+        $query_accounts="UPDATE `bankdataset`.`accounts` SET `balance` = '$new_balance' WHERE (`id` = '$account_id');";
+
+        $resultUpdate= $sqlConn->insert($query_accounts);
+
+        if($resultUpdate==0){
+            return "Sql Connection Failed";
+        }else{
+            return $new_balance;
+        }
 
     }
 
