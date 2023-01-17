@@ -1,4 +1,4 @@
-# PHP Project with Implementation of TestUnits
+# PHP Project with Implementation of Unit Tests --simple solution
 
 ## Banking Solution
 
@@ -35,6 +35,6 @@ failure.
 ○ All the deposit and withdrawal rules are applicable for transfer operation as well.
 
 
-# Testing
+# Testing 
 
 # php tests.php
