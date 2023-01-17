@@ -1,39 +1,53 @@
 <?php
-include('config.php');
 
 class sqlConnection{
 
+    private $conn;
+    private $result;
+
+
+    function __construct(){
+
+        $this->OpenCon();
+
+    }
+    function __destruct() {
+
+        $this->CloseCon();
+    }
+
     function OpenCon()
     {
-//    Mysql configuration
-
         $dbhost = DBHOST;
         $dbuser = DBUSER;
         $dbpass = DBPWD;
         $db =  DBNAME;
-
-//connection
-        $conn = new mysqli($dbhost, $dbuser, $dbpass,$db) or die("Connect failed: %s\n". $conn -> error);
-
-        return $conn;
+//        ......................................................................................................   //
+        $this->conn = new mysqli($dbhost, $dbuser, $dbpass,$db) or die("Connect failed: %s\n". $this->conn -> error);
     }
-
-    function CloseCon($conn)
+    function CloseCon()
     {
-        $conn -> close();
+        $this->conn -> close();
     }
-
-
 // Methods
-    function mysql_fetch($conn,$query)
+    function fetch($query)
     {
-        $rows=[];
-        $result = $conn->query($query);
-
-        //Fetching all the rows of the result
-        $rows = mysqli_fetch_all($result);
-
+        $rows = array();
+        $result = $this->conn->query($query);
+        while($row = mysqli_fetch_assoc($result)) {
+            $rows[] = $row;
+        }
         return $rows;
+
+    }
+
+    function insert($query){
+        if ($this->conn->query($query) === TRUE) {
+            return 1;
+        } else {
+            print_r($this->conn->error);
+            return 0;
+        }
 
     }
 

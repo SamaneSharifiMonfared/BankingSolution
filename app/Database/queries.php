@@ -1,11 +1,21 @@
 <?php
 
-$sqlConn=new sqlConnection();
 
-$conn = $sqlConn->OpenCon();
+function bankAccountsAll(){
 
-$query_accounts="SELECT * FROM bankdataset.accounts WHERE deleted = 'N' ;";
+    $sqlConn=new sqlConnection();
+    $query_accounts="SELECT * FROM bankdataset.accounts;";
+    return $sqlConn->fetch($query_accounts);
 
-$accounts=$sqlConn->mysql_fetch($conn,$query_accounts);
+}
+
+
+
+
+
+
+
+
+
 
 

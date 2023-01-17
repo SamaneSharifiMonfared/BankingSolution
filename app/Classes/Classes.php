@@ -1,8 +1,5 @@
 <?php
 
-include_once "../Database/connection.php";
-include_once "../Database/queries.php";
-
 
 class bankingSolution{
 
@@ -49,8 +46,22 @@ class bankingSolution{
             $this->resultOfValidation=False;
         }
 
-        print_r($createCommand);
+        if($createCommand[2]!=""){
+            $this->resultOfValidation=False;
+        }
+        $name=$createCommand[1];
+        $resultInsert=$this->createAccountAtDataset($name);
+        if($resultInsert==1){
+            $result=$this->getLastAccountNumber();
+            print_r($result);
 
+        }
+
+    }
+    private function createAccountAtDataset($accountName){
+        $sqlConn=new sqlConnection();
+        $query_accounts="INSERT INTO `bankdataset`.`accounts` (`fullname`) VALUES ('$accountName');";
+        return $sqlConn->insert($query_accounts);
     }
     private function deposit(){
 
@@ -63,6 +74,12 @@ class bankingSolution{
     }
     private function transfer(){
 
+    }
+    private function getLastAccountNumber(){
+        $sqlConn=new sqlConnection();
+        $query_accounts="SELECT account_number FROM bankdataset.accounts order by id desc limit 1;";
+        $result=$sqlConn->fetch($query_accounts);
+        return $result["0"]["account_number"];
     }
 
 

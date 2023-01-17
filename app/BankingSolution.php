@@ -1,6 +1,11 @@
 <?php
 
+include('Database/config.php');
+include_once "Database/connection.php";
+include_once "Database/queries.php";
 include_once "Classes/Classes.php";
+
+bankAccountsAll();
 
 
 $bankingSolution = new bankingSolution();
