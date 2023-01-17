@@ -1,7 +1,7 @@
 <?php
 
 define('DBUSER','root');
-define('DBPWD','sami1net');
+define('DBPWD','********');
 define('DBHOST','localhost');
 define('DBNAME','bankdataset');
 
