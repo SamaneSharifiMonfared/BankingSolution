@@ -35,6 +35,50 @@ failure.
 ○ All the deposit and withdrawal rules are applicable for transfer operation as well.
 
 
+
 # Testing 
+
+Sample input and output
+Account creation
+<br> ● Input: Create “Steve Rogers”
+Output: 1001
+<br> ● Input: Create “Diana Prince”
+Output: 1002
+Deposit
+<br> ● Input: Deposit 1001 500
+Output: 500
+<br> ● Input: Deposit 1001 1000
+Output: 1500
+<br> ● Input: Deposit 1001 100
+Output: Minimum deposit amount is 500
+<br> ● Input: Deposit 1001 60000
+Output: Maximum deposit amount is 50000
+<br> ● Input: Deposit 1001 10000
+Output: 11500
+<br> ● Input: Deposit 1001 10000
+Output: Only 3 deposits are allowed in a day
+Balance
+<br> ● Input: Balance 1001
+Output: 11500
+Withdrawal
+<br> ● Input: Withdraw 1001 500
+Output: Minimum withdrawal amount is 1000
+<br> ● Input: Withdraw 1001 20000
+Output: Insufficient balance
+<br> ● Input: Withdraw 1001 1000
+Output: 10500
+<br> ● Input: Withdraw 1001 1900
+Output: 8600
+<br> ● Input: Withdraw 1001 1000
+Output: 7600
+<br> ● Input: Withdraw 1001 5000
+Output: Only 3 withdrawals are allowed in a day
+Transfer
+<br> ● Input: Transfer 1001 1002 5000
+Output: Successful
+<br> ● Input: Transfer 1002 1004 500
+Output: Minimum withdrawal amount is 1000 for account 1002
+<br> ● Input: Transfer 1002 1004 30000
+Output: Maximum withdrawal amount is 30000 for account 1002
 
 # php tests.php
