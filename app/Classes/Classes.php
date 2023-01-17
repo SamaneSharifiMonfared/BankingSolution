@@ -1,5 +1,8 @@
 <?php
 
+include_once "../Database/connection.php";
+include_once "../Database/queries.php";
+
 
 class bankingSolution{
 
@@ -27,6 +30,8 @@ class bankingSolution{
             $this->balance();
         }else if($Commands[0]=="Withdraw"){
             $this->withdraw();
+        }else if($Commands[0]=="Transfer"){
+            $this->transfer();
         }else{
             $this->resultOfValidation=False;
         }
@@ -35,6 +40,16 @@ class bankingSolution{
     }
 
     private function createAccount(){
+
+        $original_commnad=$this->command;
+
+        $createCommand=explode('"',$original_commnad);
+
+        if(count($createCommand)!=3){
+            $this->resultOfValidation=False;
+        }
+
+        print_r($createCommand);
 
     }
     private function deposit(){
