@@ -3,7 +3,5 @@ Create table bankdataset.accounts (
                                       fullname varchar(250),
                                       account_number varchar(4) default (RAND() * 10000),
                                       balance int unsigned default 0,
-                                      totalwithdrawalstimes int unsigned default 0,
-                                      totaldepositstimes int unsigned default 0,
                                       deleled boolean default 0
 );
