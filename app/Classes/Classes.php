@@ -13,7 +13,7 @@ class bankingSolution{
     private $totalDepositTimes=0;
 
 //    private function __construct() {} //I didnt used constraction for the decleration
-// because i didn't want to meke a new class each time a new command will be recieved.
+// because I didn't want to meke a new class each time a new command will be recieved.
 
     public function commandValidationAndRun($Command){
 
@@ -38,13 +38,21 @@ class bankingSolution{
 
         return $this->resultOfValidation;
     }
-//   Create Account
-    private function createAccount(){
 
-//        Create “Diana Prince”
+//    Main Usefull functions
+
+private function printOutput($output){
+        print_r($output);
+        print_r("\n");
+}
+
+//  Main Functions for Main Tasks
+
+    private function createAccount(){  //        Create “Diana Prince”
 
         $original_commnad=$this->command;
         $createCommand=explode('"',$original_commnad);
+
 // validation of create account command
         if(count($createCommand)!=3){
             $this->resultOfValidation=False;
@@ -54,20 +62,22 @@ class bankingSolution{
             return;
         }
         $name=$createCommand[1];
-        $resultInsert=$this->createAccountAtDataset($name);
+        $resultInsert=$this->createAccountAtDatabase($name);
         if($resultInsert==1){
             $accountNumber=$this->getLastAccountNumber();
-            print_r($accountNumber);
-            print_r("\n");
+//            Printing the result
+            $this->printOutput($accountNumber);
+
         }else{
-            print_r("Account Could not get created!\n");
+//            Printing the Error
+            $this->printOutput("Account Could Not Get Created!");
+
         }
 
     }
 //    Deposit
-    private function deposit(){
+    private function deposit(){  //        Deposit 1001 500
 
-//        Deposit 1001 500
         $depositCommand=$this->commands;
 //validation of the deposit command
         if(count($depositCommand)!=3){// check the length of the array to be right
@@ -78,24 +88,24 @@ class bankingSolution{
             return;
         }elseif((int)$depositCommand[2]<500){ //checking the deposit min 500
             $this->resultOfValidation=False;
-            print_r("Minimum deposit amount is 500\n");
+            $this->printOutput("Minimum deposit amount is 500.");
             return;
-        }elseif((int)$depositCommand[2]>50000){
-            print_r("Maximum deposit amount is 50000");
+        }elseif((int)$depositCommand[2]>50000){ //checking the deposit max 50000
+            $this->resultOfValidation=False;
+            $this->printOutput("Maximum deposit amount is 50000.");
+            return;
         }
 
         $accountNumber=$depositCommand[1];
         $deposit=$depositCommand[2];
 
-        $depositResult=$this->depositToDatasetAfterCheckingTheAccountNumberValidation($accountNumber,$deposit);
+        $depositResult=$this->depositToDatabaseAfterCheckingTheAccountNumberValidation($accountNumber,$deposit);
         if($depositResult==0){
          return;
         }
-
-
     }
-    private function balance(){
-//        Balance 1001
+    private function balance(){  //        Balance 1001
+
         $original_commnad=$this->commands;
 //        validation
         if(count($original_commnad)!=2){
@@ -108,7 +118,7 @@ class bankingSolution{
 
         $account_number=$original_commnad[1];
 
-        $this->getTheBalanceofAccount($account_number);
+        $this->getTheBalanceofAccountFromDatabase($account_number);
 
 
     }
@@ -119,7 +129,48 @@ class bankingSolution{
 
     }
 
-    private function createAccountAtDataset($accountName){
+//  Usefull functions as middlewares
+
+    private function depositToDatabaseAfterCheckingTheAccountNumberValidation($accountNumber,$deposit){
+
+        $accountFound=$this->searchForAccountAtDatabase($accountNumber);
+        if($accountFound==0){
+            return 0;
+        }else{
+            $this->insertDepositToDatabaseAndCheckforOverloadingofAccount($accountFound,$deposit);
+
+        }
+
+    }
+
+    private function insertDepositToDatabaseAndCheckforOverloadingofAccount($accountFound,$deposit){
+
+        $new_balance=(int)$accountFound[0]["balance"]+(int)$deposit;
+        if($new_balance>100000){  //checking max exceed of the account
+            $this->printOutput("Account balance cannot exceed $100,000!");
+            return 0;
+        }
+
+        $account_id=$accountFound[0]["id"];
+
+        $resultUpdate=$this->updateNewBalanceAtDatabase($new_balance,$account_id);
+
+// checking 3 most deposit. counting the deposit times
+
+        $this->totalDepositTimes++;
+
+        if($this->totalDepositTimes>3){
+            $this->printOutput("Not Possible, Only 3 withdrawals are allowed in a day.");
+            return 0;
+        }else{
+//            Showing the result of deposit which is the new balance of the account
+            $this->printOutput($resultUpdate);
+        }
+    }
+
+    // Functions to Connect Database, Using Class SQLConnection
+
+    private function createAccountAtDatabase($accountName){
         $sqlConn=new sqlConnection();
         $query_accounts="INSERT INTO `bankdataset`.`accounts` (`fullname`) VALUES ('$accountName');";
         return $sqlConn->insert($query_accounts);
@@ -130,20 +181,7 @@ class bankingSolution{
         $result=$sqlConn->fetch($query_accounts);
         return $result["0"]["account_number"];
     }
-
-    private function depositToDatasetAfterCheckingTheAccountNumberValidation($accountNumber,$deposit){
-
-        $accountFound=$this->searchForAccountAtDataset($accountNumber);
-        if($accountFound==0){
-            return 0;
-        }else{
-            $this->insertDepositToDatasetAndCheckforOverloadingofAccount($accountFound,$deposit);
-
-        }
-
-    }
-
-    private function searchForAccountAtDataset($accountNumber){
+    private function searchForAccountAtDatabase($accountNumber){
         $sqlConn=new sqlConnection();
         $query_accounts_number="SELECT id,account_number,balance FROM bankdataset.accounts where account_number=$accountNumber";
         $result=$sqlConn->fetch($query_accounts_number);
@@ -154,22 +192,6 @@ class bankingSolution{
             print_r("This account could not be found!\n");
             return 0;
         }
-    }
-
-    private function insertDepositToDatasetAndCheckforOverloadingofAccount($accountFound,$deposit){
-
-        $new_balance=(int)$accountFound[0]["balance"]+(int)$deposit;
-        if($new_balance>100000){
-            print_r("Account balance cannot exceed $100,000!\n");
-            return 0;
-        }
-
-        $account_id=$accountFound[0]["id"];
-
-        $resultUpdate=$this->updateNewBalanceAtDatabase($new_balance,$account_id);
-        print_r($resultUpdate);
-        print_r("\n");
-
     }
     private function updateNewBalanceAtDatabase($new_balance,$account_id){
 
@@ -185,9 +207,11 @@ class bankingSolution{
         }
 
     }
-    private function getTheBalanceofAccount($account_number){
+    private function getTheBalanceofAccountFromDatabase($account_number){
+
 
     }
+
 
 
 
