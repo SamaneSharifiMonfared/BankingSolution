@@ -3,17 +3,25 @@
 
 class bankingSolution{
 
+    private $bankName;
+
     private $command; //the original command recieved from the user
 
     private $commands=[]; //the string explodes with " " seperator to an array
 
     private $resultOfValidation=True;
 
-    private $totalWithDrawTimes=0;
-    private $totalDepositTimes=0;
 
-//    private function __construct() {} //I didnt used constraction for the decleration
-// because I didn't want to meke a new class each time a new command will be recieved.
+    function __construct($bankName) {
+
+        $this->bankName=$bankName;
+
+    }
+
+    function __destruct()
+    {
+        $this->printOutput("Goodbye From Bank $this->bankName, Hope to see you soon, again!");
+    }
 
     public function commandValidationAndRun($Command){
 
@@ -157,17 +165,17 @@ private function printOutput($output){
         $resultUpdate=$this->updateNewBalanceAtDatabase($new_balance,$account_id);
 
 
-        $this->totalDepositTimes++;   // checking 3 most deposit. counting the deposit times
+//        $this->totalDepositTimes++;   // checking 3 most deposit. counting the deposit times
 
-
-        if($this->totalDepositTimes>3){
-            $this->printOutput("Not Possible, Only 3 withdrawals are allowed in a day.");
-            return ;
-        }else{
-//            Showing the result of deposit which is the new balance of the account
-            $this->printOutput($resultUpdate);
-            return ;
-        }
+//
+//        if($this->totalDepositTimes>3){
+//            $this->printOutput("Not Possible, Only 3 withdrawals are allowed in a day.");
+//            return ;
+//        }else{
+////            Showing the result of deposit which is the new balance of the account
+//            $this->printOutput($resultUpdate);
+//            return ;
+//        }
     }
 
     // Functions to Connect Database, Using Class SQLConnection

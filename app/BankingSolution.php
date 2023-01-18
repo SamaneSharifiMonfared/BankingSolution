@@ -7,13 +7,14 @@ include_once "Classes/Classes.php";
 
 bankAccountsAll();
 
-
-$bankingSolution = new bankingSolution();
+$name="Samane";
+$bankingSolution = new bankingSolution($name);
 
 while(1){
 
-    print_r("Welcome to my Banking Solution, Programmed by Samane Monfared: \n");
-    $Command = readline("Please Enter Your Command Below Or For Exit Enter x: \n ");
+    print_r("Welcome to Our Bank: \n");
+    $Command = readline("Please Enter Your Command Or For Exit Enter x: ");
+
     if($Command=="x"){
         break;
     }
