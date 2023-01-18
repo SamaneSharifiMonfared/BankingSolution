@@ -138,7 +138,7 @@ private function printOutput($output){
             return 0;
         }else{
             $this->insertDepositToDatabaseAndCheckforOverloadingofAccount($accountFound,$deposit);
-
+            return 1;
         }
 
     }
@@ -146,25 +146,27 @@ private function printOutput($output){
     private function insertDepositToDatabaseAndCheckforOverloadingofAccount($accountFound,$deposit){
 
         $new_balance=(int)$accountFound[0]["balance"]+(int)$deposit;
+
         if($new_balance>100000){  //checking max exceed of the account
             $this->printOutput("Account balance cannot exceed $100,000!");
-            return 0;
+            return ;
         }
 
         $account_id=$accountFound[0]["id"];
 
         $resultUpdate=$this->updateNewBalanceAtDatabase($new_balance,$account_id);
 
-// checking 3 most deposit. counting the deposit times
 
-        $this->totalDepositTimes++;
+        $this->totalDepositTimes++;   // checking 3 most deposit. counting the deposit times
+
 
         if($this->totalDepositTimes>3){
             $this->printOutput("Not Possible, Only 3 withdrawals are allowed in a day.");
-            return 0;
+            return ;
         }else{
 //            Showing the result of deposit which is the new balance of the account
             $this->printOutput($resultUpdate);
+            return ;
         }
     }
 
