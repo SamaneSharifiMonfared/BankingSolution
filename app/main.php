@@ -1,8 +1,6 @@
 <?php
 
-include_once "Classes/bankingSolution.php";
-
-
+include("Classes/bankingSolution.php");
 $name="Samane";
 $bankingSolution = new bankingSolution($name);
 

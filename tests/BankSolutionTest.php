@@ -1,11 +1,10 @@
 <?php
 
-
 Class BankSolutionTest extends \PHPUnit\Framework\TestCase {
 
     public function testCreateAccount(){
 
-        $bank = new \App\bankingSolution("Samane");
+        $bank = new apa\Classes\bankingSolution\bankingSolution("Samane");
 
         $result=$bank->createAccount('Create "SamaneSharifi"');
 

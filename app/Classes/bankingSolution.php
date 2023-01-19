@@ -1,12 +1,8 @@
 <?php
 
-namespace App;
-
 // commands hint : action => out put
 
 include("sqlConnection.php");
-
-
 
 class bankingSolution{
 
