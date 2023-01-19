@@ -195,7 +195,7 @@ private function printOutput($output){
             $this->resultOfValidation=True;
             return ;
         }else{
-            $this->updateNewBalanceAtDatabase($new_balance,$new_depositTimes,$account_id);
+            $this->updateNewBalanceAtDatabaseAfterDeposit($new_balance,$new_depositTimes,$account_id);
         }
 
     }
@@ -233,7 +233,7 @@ private function printOutput($output){
             $this->resultOfValidation=True;
             return ;
         }else{
-            $this->updateNewBalanceAtDatabase($new_balance,$new_withdrawTimes,$account_id);
+            $this->updateNewBalanceAtDatabaseAfterWithdraw($new_balance,$new_withdrawTimes,$account_id);
         }
 
     }
@@ -246,11 +246,26 @@ private function printOutput($output){
         return $sqlConn->insert($query_accounts);
     }
 
-    private function updateNewBalanceAtDatabase($new_balance,$new_depositTimes,$account_id){
+    private function updateNewBalanceAtDatabaseAfterDeposit($new_balance,$new_depositTimes,$account_id){
 
         $sqlConn=new sqlConnection();
 
         $query_accounts="UPDATE `bankdataset`.`accounts` SET `balance` = '$new_balance' , `deposittimes` = '$new_depositTimes' WHERE (`id` = '$account_id');";
+
+        $resultUpdate= $sqlConn->insert($query_accounts);
+
+        if($resultUpdate==0){
+            $this->printOutput("Sql Connection Failed");
+        }else{
+            $this->printOutput($new_balance);
+        }
+
+    }
+    private function updateNewBalanceAtDatabaseAfterWithdraw($new_balance,$new_withdrawTimes,$account_id){
+
+        $sqlConn=new sqlConnection();
+
+        $query_accounts="UPDATE `bankdataset`.`accounts` SET `balance` = '$new_balance' , `withdrawtimes` = '$new_withdrawTimes' WHERE (`id` = '$account_id');";
 
         $resultUpdate= $sqlConn->insert($query_accounts);
 
