@@ -1,11 +1,7 @@
 <?php
 
-include('dbClasses/config.php');
-include_once "dbClasses/connection.php";
-include_once "dbClasses/queries.php";
-include_once "Classes/Classes.php";
+include_once "Classes/bankingSolution.php";
 
-bankAccountsAll();
 
 $name="Samane";
 $bankingSolution = new bankingSolution($name);
@@ -18,7 +14,7 @@ while(1){
         break;
     }
 
-    $validationAndRun=$bankingSolution->commandValidationAndRun($Command);
+    $validationAndRun=$bankingSolution->Run($Command);
 
     if(!$validationAndRun){
         print_r("This Command is not Valid! Try again! \n");

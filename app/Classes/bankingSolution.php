@@ -1,15 +1,20 @@
 <?php
 
+namespace App;
+
 // commands hint : action => out put
+
+include("sqlConnection.php");
+
 
 
 class bankingSolution{
 
     private $bankName;
 
-    private $command; //the original command received from the user
+//    private $command; //the original command received from the user
 
-    private $commands=[]; //the string explodes with " " separator to an array
+//    private $commands=[]; //the string explodes with " " separator to an array
 
     private $resultOfValidation=True;
 
@@ -27,27 +32,24 @@ class bankingSolution{
 
 //   functions
 
-    public function commandValidationAndRun($Command){
+    public function Run($Command){
 
         $this->resultOfValidation=True;  //This is true unless it is proven not :D
 
         $Commands=explode(" ",$Command);
 
-        $this->command=$Command;
-        $this->commands=$Commands;
-
 //each command has different validations and it will be in its own function
 
         if($Commands[0]=="Create"){
-            $this->createAccount();
+            $this->createAccount($Command);
         }else if($Commands[0]=="Deposit" || $Commands[0]=="deposit"){   // I tried to not be case sensitive :D
-            $this->deposit();
+            $this->deposit($Commands);
         }else if($Commands[0]=="Balance" || $Commands[0]=="balance"){
-            $this->balance();
+            $this->balance($Commands);
         }else if($Commands[0]=="Withdraw" || $Commands[0]=="withdraw"){
-            $this->withdraw();
+            $this->withdraw($Commands);
         }else if($Commands[0]=="Transfer" || $Commands[0]=="transfer"){
-            $this->transfer();
+            $this->transfer($Commands);
         }else{
             $this->resultOfValidation=False;
         }
@@ -64,10 +66,9 @@ private function printOutput($output){
 
 //  Main Functions for Main Tasks
 
-    private function createAccount(){  //      example:  Create “Diana Prince”
+    public function createAccount($Command){  //      example:  Create “Diana Prince”
 
-        $original_command=$this->command;
-        $createCommand=explode('"',$original_command);
+        $createCommand=explode('"',$Command);
 
 // validation of create account command (should have 3 parts. the last part is nothing inside it, the second part is the name of account)
         if(count($createCommand)!=3){
@@ -78,12 +79,9 @@ private function printOutput($output){
             return;
         }
 
-
         $name=$createCommand[1];  //name of account , only thing we need from this command
 
         $resultCreateAccount=$this->createAccountAtDatabase($name);
-
-
 
 //        action
         if($resultCreateAccount==1){
@@ -99,8 +97,8 @@ private function printOutput($output){
 
     }
 
-    private function deposit(){  //        Deposit 1001 500
-        $depositCommand=$this->commands;
+    public function deposit($Commands){  //        Deposit 1001 500
+        $depositCommand=$Commands;
 //validation of the deposit command
         if(count($depositCommand)!=3){// check the length of the array to be right
             $this->resultOfValidation=False;
@@ -126,45 +124,43 @@ private function printOutput($output){
         $this->printOutput($output);
 
     }
-    private function balance(){  //        Balance 1001
+    public function balance($Commands){  //        Balance 1001
 
-        $original_commnad=$this->commands;
 //        validation
-        if(count($original_commnad)!=2){
+        if(count($Commands)!=2){
             $this->resultOfValidation=False;
             return;
-        }elseif(strlen($original_commnad[1])!=4){
+        }elseif(strlen($Commands[1])!=4){
             $this->resultOfValidation=False;
             return;
         }
 
-        $account_number=$original_commnad[1];
+        $account_number=$Commands[1];
 // action
         $this->getTheBalanceofAccountFromDatabase($account_number);
     }
 
 
-    private function withdraw(){
-        $withdrawCommand=$this->commands;
+    public function withdraw($Commands){
 //validation of the withdrawal command
-        if(count($withdrawCommand)!=3){// check the length of the array to be right
+        if(count($Commands)!=3){// check the length of the array to be right
             $this->resultOfValidation=False;
             return;
-        }elseif(strlen($withdrawCommand[1])!=4){ //checking the length of account number
+        }elseif(strlen($Commands[1])!=4){ //checking the length of account number
             $this->resultOfValidation=False;
             return;
-        }elseif((int)$withdrawCommand[2]<1000){ //checking the withdrawal min 1000
+        }elseif((int)$Commands[2]<1000){ //checking the withdrawal min 1000
             $this->resultOfValidation=False;
             $this->printOutput("Minimum withdraw amount is 1000.");
             return;
-        }elseif((int)$withdrawCommand[2]>25000){ //checking the withdrawal max 25000
+        }elseif((int)$Commands[2]>25000){ //checking the withdrawal max 25000
             $this->resultOfValidation=False;
             $this->printOutput("Maximum withdraw amount is 25000.");
             return;
         }
 
-        $accountNumber=$withdrawCommand[1];
-        $withdraw=$withdrawCommand[2];
+        $accountNumber=$Commands[1];
+        $withdraw=$Commands[2];
 //        action
 
         $output=$this->withdrawToDatabaseAfterCheckingTheAccountNumberValidation($accountNumber,$withdraw);
@@ -172,33 +168,32 @@ private function printOutput($output){
 
     }
 
-    private function transfer(){
+    public function transfer($Commands){
 
-        $transferCommand=$this->commands;
 //validation of the transfer command
-        if(count($transferCommand)!=4){// check the length of the array to be right
+        if(count($Commands)!=4){// check the length of the array to be right
             $this->resultOfValidation=False;
             return;
-        }elseif(strlen($transferCommand[1])!=4){ //checking the length of account number
+        }elseif(strlen($Commands[1])!=4){ //checking the length of account number
             $this->resultOfValidation=False;
             return;
-        }elseif((int)$transferCommand[3]<1000){ //checking the withdrawal min 1000
+        }elseif((int)$Commands[3]<1000){ //checking the withdrawal min 1000
             $this->resultOfValidation=False;
             $this->printOutput("Minimum withdraw amount is 1000.");
             return;
-        }elseif((int)$transferCommand[3]>25000){ //checking the withdrawal max 25000
+        }elseif((int)$Commands[3]>25000){ //checking the withdrawal max 25000
             $this->resultOfValidation=False;
             $this->printOutput("Maximum withdraw amount is 25000.");
             return;
-        }elseif(strlen($transferCommand[2])!=4){ //checking the length of second account number
+        }elseif(strlen($Commands[2])!=4){ //checking the length of second account number
             $this->resultOfValidation=False;
             return;
         }
 //        each transfer is one withdraw and one deposit
 
-        $accountNumber1=$transferCommand[1];
-        $withdraw=$transferCommand[3];
-        $accountNumber2=$transferCommand[2];
+        $accountNumber1=$Commands[1];
+        $withdraw=$Commands[3];
+        $accountNumber2=$Commands[2];
         $deposit=$withdraw;
 //        action
 
