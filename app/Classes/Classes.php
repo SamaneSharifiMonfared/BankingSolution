@@ -133,6 +133,30 @@ private function printOutput($output){
     }
     private function withdraw(){
 
+        $withdrawCommand=$this->commands;
+//validation of the withdrawal command
+        if(count($withdrawCommand)!=3){// check the length of the array to be right
+            $this->resultOfValidation=False;
+            return;
+        }elseif(strlen($withdrawCommand[1])!=4){ //checking the length of account number
+            $this->resultOfValidation=False;
+            return;
+        }elseif((int)$withdrawCommand[2]<500){ //checking the withdrawal min 1000
+            $this->resultOfValidation=False;
+            $this->printOutput("Minimum withdraw amount is 500.");
+            return;
+        }elseif((int)$withdrawCommand[2]>50000){ //checking the deposit max 25000
+            $this->resultOfValidation=False;
+            $this->printOutput("Maximum withdraw amount is 50000.");
+            return;
+        }
+
+        $accountNumber=$withdrawCommand[1];
+        $withdraw=$withdrawCommand[2];
+//        action
+
+        $this->withdrawToDatabaseAfterCheckingTheAccountNumberValidation($accountNumber,$withdraw);
+
     }
     private function transfer(){
 
@@ -172,6 +196,44 @@ private function printOutput($output){
             return ;
         }else{
             $this->updateNewBalanceAtDatabase($new_balance,$new_depositTimes,$account_id);
+        }
+
+    }
+
+// withdrawal functions
+
+    private function withdrawToDatabaseAfterCheckingTheAccountNumberValidation($accountNumber,$withdraw){
+
+        $accountFound=$this->searchForAccountAtDatabaseByAccountNumber($accountNumber);
+        if($accountFound==0){
+            return 0;
+        }else{
+            $this->subWithdrawToDatabaseAndCheckforUnderloadingofAccount($accountFound,$withdraw);
+            return 1;
+        }
+
+    }
+
+    private function subWithdrawToDatabaseAndCheckforUnderloadingofAccount($accountFound,$withdraw){
+
+        $new_balance=(int)$accountFound[0]["balance"]-(int)$withdraw;
+
+        if($new_balance<=0){  //checking min balance of the account
+            $this->printOutput("Insufficient balance!");
+            return ;
+        }
+        $account_id=$accountFound[0]["id"];
+//        Checking max 3 deposit times per day
+        $withdrawTimes=$accountFound[0]["withdrawtimes"];
+
+        $new_withdrawTimes=$withdrawTimes+1;
+
+        if($new_withdrawTimes>3){
+            $this->printOutput("Only 3 withdraw are allowed in a day");
+            $this->resultOfValidation=True;
+            return ;
+        }else{
+            $this->updateNewBalanceAtDatabase($new_balance,$new_withdrawTimes,$account_id);
         }
 
     }
