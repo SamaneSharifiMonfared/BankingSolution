@@ -5,7 +5,6 @@ class sqlConnection{
     private $conn;
     private $result;
 
-
     function __construct(){
 
         $this->OpenCon();

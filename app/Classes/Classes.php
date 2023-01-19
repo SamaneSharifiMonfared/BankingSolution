@@ -1,20 +1,22 @@
 <?php
 
+// commands hint : action => out put
+
 
 class bankingSolution{
 
     private $bankName;
 
-    private $command; //the original command recieved from the user
+    private $command; //the original command received from the user
 
-    private $commands=[]; //the string explodes with " " seperator to an array
+    private $commands=[]; //the string explodes with " " separator to an array
 
     private $resultOfValidation=True;
-
 
     function __construct($bankName) {
 
         $this->bankName=$bankName;
+        $this->printOutput("Welcome to Our Bank:");
 
     }
 
@@ -23,12 +25,16 @@ class bankingSolution{
         $this->printOutput("Goodbye From Bank $this->bankName, Hope to see you soon, again!");
     }
 
+//   functions
+
     public function commandValidationAndRun($Command){
 
-        $Commands=explode(" ",$Command);
 
+        $Commands=explode(" ",$Command);
         $this->command=$Command;
         $this->commands=$Commands;
+
+        $this->resultOfValidation=True;
 
         if($Commands[0]=="Create"){
             $this->createAccount();
@@ -47,11 +53,10 @@ class bankingSolution{
         return $this->resultOfValidation;
     }
 
-//    Main Usefull functions
+//    Usefull functions
 
 private function printOutput($output){
-        print_r($output);
-        print_r("\n");
+        print_r($output."\n");
 }
 
 //  Main Functions for Main Tasks
@@ -71,6 +76,7 @@ private function printOutput($output){
         }
         $name=$createCommand[1];
         $resultInsert=$this->createAccountAtDatabase($name);
+//        action
         if($resultInsert==1){
             $accountNumber=$this->getLastAccountNumber();
 //            Printing the result
@@ -83,7 +89,6 @@ private function printOutput($output){
         }
 
     }
-//    Deposit
     private function deposit(){  //        Deposit 1001 500
 
         $depositCommand=$this->commands;
@@ -106,11 +111,9 @@ private function printOutput($output){
 
         $accountNumber=$depositCommand[1];
         $deposit=$depositCommand[2];
+//        action
+        $this->depositToDatabaseAfterCheckingTheAccountNumberValidation($accountNumber,$deposit);
 
-        $depositResult=$this->depositToDatabaseAfterCheckingTheAccountNumberValidation($accountNumber,$deposit);
-        if($depositResult==0){
-         return;
-        }
     }
     private function balance(){  //        Balance 1001
 
@@ -125,10 +128,8 @@ private function printOutput($output){
         }
 
         $account_number=$original_commnad[1];
-
+// action
         $this->getTheBalanceofAccountFromDatabase($account_number);
-
-
     }
     private function withdraw(){
 
@@ -141,7 +142,7 @@ private function printOutput($output){
 
     private function depositToDatabaseAfterCheckingTheAccountNumberValidation($accountNumber,$deposit){
 
-        $accountFound=$this->searchForAccountAtDatabase($accountNumber);
+        $accountFound=$this->searchForAccountAtDatabaseByAccountNumber($accountNumber);
         if($accountFound==0){
             return 0;
         }else{
@@ -159,69 +160,91 @@ private function printOutput($output){
             $this->printOutput("Account balance cannot exceed $100,000!");
             return ;
         }
-
         $account_id=$accountFound[0]["id"];
+//        Checking max 3 deposit times per day
+        $depositTimes=$accountFound[0]["deposittimes"];
 
-        $resultUpdate=$this->updateNewBalanceAtDatabase($new_balance,$account_id);
+        $new_depositTimes=$depositTimes+1;
 
+        if($new_depositTimes>3){
+            $this->printOutput("Only 3 deposits are allowed in a day");
+            $this->resultOfValidation=True;
+            return ;
+        }else{
+            $this->updateNewBalanceAtDatabase($new_balance,$new_depositTimes,$account_id);
+        }
 
-//        $this->totalDepositTimes++;   // checking 3 most deposit. counting the deposit times
-
-//
-//        if($this->totalDepositTimes>3){
-//            $this->printOutput("Not Possible, Only 3 withdrawals are allowed in a day.");
-//            return ;
-//        }else{
-////            Showing the result of deposit which is the new balance of the account
-//            $this->printOutput($resultUpdate);
-//            return ;
-//        }
     }
 
-    // Functions to Connect Database, Using Class SQLConnection
+    // Functions to Connect dbClasses, Using Class SQLConnection
 
     private function createAccountAtDatabase($accountName){
         $sqlConn=new sqlConnection();
         $query_accounts="INSERT INTO `bankdataset`.`accounts` (`fullname`) VALUES ('$accountName');";
         return $sqlConn->insert($query_accounts);
     }
+
+    private function updateNewBalanceAtDatabase($new_balance,$new_depositTimes,$account_id){
+
+        $sqlConn=new sqlConnection();
+
+        $query_accounts="UPDATE `bankdataset`.`accounts` SET `balance` = '$new_balance' , `deposittimes` = '$new_depositTimes' WHERE (`id` = '$account_id');";
+
+        $resultUpdate= $sqlConn->insert($query_accounts);
+
+        if($resultUpdate==0){
+            $this->printOutput("Sql Connection Failed");
+        }else{
+            $this->printOutput($new_balance);
+        }
+
+    }
+
+    private function getTheBalanceofAccountFromDatabase($account_number){
+
+        $accountFound=$this->searchForAccountAtDatabaseByAccountNumber($account_number);
+
+        if(empty($accountFound)){
+            $this->printOutput("This Balancex is not available!");
+        }else{
+            $balance=$accountFound[0]["balance"];
+            $this->printOutput($balance);
+        }
+    }
+
+
+// functions for searching at Database
+
     private function getLastAccountNumber(){
         $sqlConn=new sqlConnection();
         $query_accounts="SELECT account_number FROM bankdataset.accounts order by id desc limit 1;";
         $result=$sqlConn->fetch($query_accounts);
         return $result["0"]["account_number"];
     }
-    private function searchForAccountAtDatabase($accountNumber){
+    private function searchForAccountAtDatabaseByAccountNumber($accountNumber){
         $sqlConn=new sqlConnection();
-        $query_accounts_number="SELECT id,account_number,balance FROM bankdataset.accounts where account_number=$accountNumber";
+        $query_accounts_number="SELECT id,account_number,balance,deposittimes,withdrawtimes FROM bankdataset.accounts where account_number=$accountNumber";
         $result=$sqlConn->fetch($query_accounts_number);
 
         if(!empty($result)){
             return $result;
         }else{
-            print_r("This account could not be found!\n");
+            $this->printOutput("This account could not be found!");
             return 0;
         }
     }
-    private function updateNewBalanceAtDatabase($new_balance,$account_id){
-
+    private function searchForAccountAtDatabaseById($accountId){
         $sqlConn=new sqlConnection();
-        $query_accounts="UPDATE `bankdataset`.`accounts` SET `balance` = '$new_balance' WHERE (`id` = '$account_id');";
+        $query_accounts_id="SELECT id,account_number,balance,deposittimes,withdrawtimes FROM bankdataset.accounts where id=$accountId";
+        $result=$sqlConn->fetch($query_accounts_id);
 
-        $resultUpdate= $sqlConn->insert($query_accounts);
-
-        if($resultUpdate==0){
-            return "Sql Connection Failed";
+        if(!empty($result)){
+            return $result;
         }else{
-            return $new_balance;
+            $this->printOutput("This account could not be found!");
+            return 0;
         }
-
     }
-    private function getTheBalanceofAccountFromDatabase($account_number){
-
-
-    }
-
 
 
 
