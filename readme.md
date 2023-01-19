@@ -38,6 +38,8 @@ failure.
 
 # Testing 
 
+<img src="img.png">
+
 Sample input and output
 Account creation
 <br> ● Input: Create “Steve Rogers”
